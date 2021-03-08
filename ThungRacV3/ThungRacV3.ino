@@ -25,8 +25,8 @@ int hongNgoai = 5;
 long duration, dist;
 
 void setup() {
-  servo1.attach(servo1Pin);
-  servo2.attach(servo2Pin);
+  //  servo1.attach(servo1Pin);
+  //  servo2.attach(servo2Pin);
 
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
@@ -34,20 +34,22 @@ void setup() {
   pinMode(Relay, OUTPUT);
   pinMode(hongNgoai, INPUT);
 
-  for (int i = servo1.read(); i >= 0; i--) {
-    servo1.write(i);
+  int pos = servo1.read();
+  while (pos >= 0) {
+    servo1.write(pos);
     delay(25);
+    pos--;
   }
-
-  for (int i = servo2.read(); i <= 150 ; i++) {
-    servo2.write(i);
+  pos = servo2.read();
+  while (pos <= 150) {
+      servo2.write(pos);
     delay(25);
+    pos++;
   }
   servo1.detach();
   servo2.detach();
 
   tmrpcm.speakerPin = 9;
-
   if (!SD.begin(SD_ChipSelectPin)) {
     return;
   }
@@ -85,11 +87,11 @@ void loop() {
       servo1.write(i);
       delay(25);
     }
+    delay(1000);
     bool flag = false;
     for (int i = 1; i <= 15; i++) {
       while (digitalRead(hongNgoai) == 0) {
         servo2.attach(servo2Pin);
-        delay(1);
         for (int i = servo2.read(); i >= 90; i--) {
           servo2.write(i);
           delay(25);
@@ -98,17 +100,11 @@ void loop() {
         delay(7000);
       }
       servo2.attach(servo2Pin);
-      delay(1);
       for (int i = servo2.read(); i <= 150 ; i++) {
         servo2.write(i);
         delay(25);
       }
-      if (flag == true) {
-//        tmrpcm.play("2.wav");
-//        delay(2500);
-      }
       servo2.detach();
-      flag = false;
       delay(1000);
     }
     for (int i = servo1.read(); i >= 0; i--) {
@@ -118,10 +114,11 @@ void loop() {
     servo1.detach();
     tmrpcm.play("3.wav");
     delay(2500);
-    //    digitalWrite(Relay, HIGH);
-    //    delay(30000);
-    //    digitalWrite(Relay, LOW);
-    
-    
+    if (flag == true) {
+      digitalWrite(Relay, HIGH);
+      delay(30000);
+      digitalWrite(Relay, LOW);
+    }
+    flag = false;
   }
 }
